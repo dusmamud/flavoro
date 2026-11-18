@@ -1,9 +1,14 @@
+<script lang="ts">
+	import Reveal from '#lib/components/Reveal.svelte';
+</script>
+
 <svelte:head>
 	<title>Privacy Policy — Flavoro Restaurant</title>
 	<meta name="description" content="Privacy Policy for Flavoro Restaurant." />
 </svelte:head>
 
-<section class="bg-cream py-14 lg:py-16">
+<Reveal>
+<section class="bg-cream py-16 lg:py-24">
 	<div class="mx-auto max-w-3xl px-4 sm:px-6">
 		<p class="font-script text-3xl text-brand">Our Promise</p>
 		<h1 class="mt-2 font-display text-4xl font-black">Privacy Policy</h1>
@@ -31,3 +36,4 @@
 		</div>
 	</div>
 </section>
+</Reveal>

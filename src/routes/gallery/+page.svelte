@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { ChevronLeft, ChevronRight, Expand, X } from '@lucide/svelte';
 	import { galleryItems } from '#lib/api';
+	import Reveal from '#lib/components/Reveal.svelte';
 
 	let selected = $state<number | null>(null);
 
@@ -35,6 +36,7 @@
 
 <svelte:window onkeydown={onKeydown} />
 
+<Reveal>
 <section class="bg-night py-16 text-center text-white lg:py-20">
 	<p class="font-script text-3xl text-brand">Moments</p>
 	<h1 class="mt-2 font-display text-4xl font-black sm:text-5xl">Our Gallery</h1>
@@ -42,8 +44,10 @@
 		From the dining room to the plate — a glimpse of life at Flavoro.
 	</p>
 </section>
+</Reveal>
 
-<section class="bg-cream py-14 lg:py-16">
+<Reveal>
+<section class="bg-cream py-16 lg:py-24">
 	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 		<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 			{#each galleryItems as item, i (item.image)}
@@ -70,6 +74,7 @@
 		</div>
 	</div>
 </section>
+</Reveal>
 
 {#if selected !== null}
 	<div

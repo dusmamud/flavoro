@@ -3,6 +3,7 @@
 	import { Search } from '@lucide/svelte';
 	import DishCard from '#lib/components/DishCard.svelte';
 	import { menuDishes } from '#lib/api';
+	import Reveal from '#lib/components/Reveal.svelte';
 
 	// searchParams are forbidden at prerender time — read them in the browser only.
 	let query = $state('');
@@ -27,12 +28,15 @@
 	<meta name="description" content="Search the Flavoro menu." />
 </svelte:head>
 
+<Reveal>
 <section class="bg-night py-16 text-center text-white lg:py-20">
 	<p class="font-script text-3xl text-brand">Find Your Favourite</p>
 	<h1 class="mt-2 font-display text-4xl font-black sm:text-5xl">Search the Menu</h1>
 </section>
+</Reveal>
 
-<section class="bg-cream py-14 lg:py-16">
+<Reveal>
+<section class="bg-cream py-16 lg:py-24">
 	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 		<form
 			role="search"
@@ -53,7 +57,7 @@
 			</label>
 			<button
 				type="submit"
-				class="flex h-12 shrink-0 items-center rounded-full bg-brand px-6 font-semibold text-white hover:bg-brand-dark"
+				class="flex h-12 shrink-0 items-center rounded-full bg-brand px-6 font-semibold text-white transition-all hover:bg-brand-dark active:scale-[0.98]"
 			>
 				Search
 			</button>
@@ -71,11 +75,14 @@
 					{results.length} result{results.length === 1 ? '' : 's'} for “{query}”
 				</p>
 				<div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-					{#each results as dish (dish.id)}
-						<DishCard {dish} />
+					{#each results as dish, i (dish.id)}
+						<Reveal class="h-full" delay={Math.min((i % 8) * 70, 490)}>
+							<DishCard {dish} />
+						</Reveal>
 					{/each}
 				</div>
 			{/if}
 		{/if}
 	</div>
 </section>
+</Reveal>

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { ArrowLeft, Home, SearchX } from '@lucide/svelte';
+	import Reveal from '#lib/components/Reveal.svelte';
 </script>
 
 <svelte:head>
@@ -8,6 +9,7 @@
 	<meta name="description" content="This page could not be found at Flavoro Restaurant." />
 </svelte:head>
 
+<Reveal>
 <section class="bg-cream py-20 text-center lg:py-28">
 	<div class="mx-auto max-w-xl px-4">
 		<SearchX class="mx-auto h-16 w-16 text-brand" />
@@ -34,3 +36,4 @@
 		</div>
 	</div>
 </section>
+</Reveal>

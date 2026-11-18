@@ -4,7 +4,7 @@ import type { RequestHandler } from './$types';
 
 export const prerender = true;
 
-const staticPages = ['', 'about', 'menu', 'gallery', 'reservations', 'blog', 'contact', 'cart', 'search', 'privacy', 'terms'];
+const staticPages = ['', 'about', 'menu', 'gallery', 'reservations', 'blog', 'contact', 'cart', 'search', 'privacy', 'terms', 'order', 'catering', 'private-dining', 'gift-cards', 'faq'];
 
 export const GET: RequestHandler = () => {
 	const urls = [

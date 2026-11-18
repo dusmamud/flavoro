@@ -2,6 +2,7 @@
 	import { ArrowRight, Minus, Plus, ShoppingBag, Trash2 } from '@lucide/svelte';
 	import { cart, formatPrice } from '#lib/cart.svelte';
 	import { toast } from '#lib/toast.svelte';
+	import Reveal from '#lib/components/Reveal.svelte';
 
 	let orderPlaced = $state(false);
 	let orderNo = $state('');
@@ -20,12 +21,15 @@
 	<meta name="description" content="Review your Flavoro order before checkout." />
 </svelte:head>
 
+<Reveal>
 <section class="bg-night py-16 text-center text-white lg:py-20">
 	<p class="font-script text-3xl text-brand">Your Order</p>
 	<h1 class="mt-2 font-display text-4xl font-black sm:text-5xl">Cart</h1>
 </section>
+</Reveal>
 
-<section class="bg-cream py-14 lg:py-16">
+<Reveal>
+<section class="bg-cream py-16 lg:py-24">
 	<div class="mx-auto max-w-4xl px-4 sm:px-6">
 		{#if orderPlaced}
 			<div class="rounded-3xl bg-white p-8 text-center shadow-xl" role="status">
@@ -121,7 +125,7 @@
 				<button
 					type="button"
 					onclick={checkout}
-					class="mt-6 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-brand font-semibold text-white transition-colors hover:bg-brand-dark"
+					class="mt-6 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-brand font-semibold text-white transition-all hover:bg-brand-dark active:scale-[0.98]"
 				>
 					Place Order — {formatPrice(cart.total)}
 				</button>
@@ -132,3 +136,4 @@
 		{/if}
 	</div>
 </section>
+</Reveal>

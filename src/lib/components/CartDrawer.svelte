@@ -103,7 +103,7 @@
 				<a
 					href="/cart/"
 					onclick={() => ui.closeCart()}
-					class="mt-4 flex h-12 items-center justify-center rounded-full bg-brand font-semibold text-white hover:bg-brand-dark"
+					class="mt-4 flex h-12 items-center justify-center rounded-full bg-brand font-semibold text-white transition-all hover:bg-brand-dark active:scale-[0.98]"
 				>
 					View Cart &amp; Checkout
 				</a>

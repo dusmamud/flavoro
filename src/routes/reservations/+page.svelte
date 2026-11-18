@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { CalendarDays, CheckCircle2, Clock, Phone, Users } from '@lucide/svelte';
+	import Reveal from '#lib/components/Reveal.svelte';
+	import SubmitButton from '#lib/components/SubmitButton.svelte';
 	import { restaurantInfo } from '#lib/api';
 
 	let date = $state('');
@@ -9,6 +11,8 @@
 	let phone = $state('');
 	let notes = $state('');
 	let error = $state('');
+	let invalidField = $state('');
+	let submitting = $state(false);
 	let confirmation = $state<string | null>(null);
 
 	const today = new Date().toISOString().split('T')[0];
@@ -16,27 +20,40 @@
 	function submit(e: SubmitEvent) {
 		e.preventDefault();
 		error = '';
+		invalidField = '';
 		if (!name.trim()) {
 			error = 'Please tell us your name.';
+			invalidField = 'name';
 			return;
 		}
 		if (!date) {
 			error = 'Please pick a date for your table.';
+			invalidField = 'date';
 			return;
 		}
 		if (date < today) {
 			error = 'That date is in the past — please pick today or a future date.';
+			invalidField = 'date';
 			return;
 		}
 		if (!/^\+?[0-9\s\-()]{7,}$/.test(phone.trim())) {
 			error = 'Please enter a valid phone number so we can confirm your table.';
+			invalidField = 'phone';
 			return;
 		}
 		if (guests < 1 || guests > 20) {
 			error = 'Party size must be between 1 and 20 guests.';
+			invalidField = 'guests';
 			return;
 		}
-		confirmation = `FLV-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+		// Brief loading state (simulated send) so the button shows a
+		// spinner and cannot double-submit.
+		if (submitting) return;
+		submitting = true;
+		window.setTimeout(() => {
+			confirmation = `FLV-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+			submitting = false;
+		}, 600);
 	}
 </script>
 
@@ -50,23 +67,26 @@
 	<meta property="og:image" content="/images/reserve-bg.jpg" />
 </svelte:head>
 
-<section class="relative overflow-hidden bg-night py-16 text-white lg:py-20">
-	<img
-		src="/images/reserve-bg.jpg"
-		alt=""
-		aria-hidden="true"
-		loading="lazy"
-		class="absolute inset-0 h-full w-full object-cover opacity-40"
-	/>
-	<div class="absolute inset-0 bg-night/60" aria-hidden="true"></div>
-	<div class="relative text-center">
-		<p class="font-script text-3xl text-brand">Book Your Table</p>
-		<h1 class="mt-2 font-display text-4xl font-black sm:text-5xl">Reserve Your Table Now!</h1>
-		<p class="mx-auto mt-4 max-w-xl text-white/75">Good food is better when shared.</p>
-	</div>
-</section>
+<Reveal>
+	<section class="relative overflow-hidden bg-night py-16 text-white lg:py-20">
+		<img
+			src="/images/reserve-bg.jpg"
+			alt=""
+			aria-hidden="true"
+			loading="lazy"
+			class="absolute inset-0 h-full w-full object-cover opacity-40"
+		/>
+		<div class="absolute inset-0 bg-night/60" aria-hidden="true"></div>
+		<div class="relative text-center">
+			<p class="font-script text-3xl text-brand">Book Your Table</p>
+			<h1 class="mt-2 font-display text-4xl font-black sm:text-5xl">Reserve Your Table Now!</h1>
+			<p class="mx-auto mt-4 max-w-xl text-white/75">Good food is better when shared.</p>
+		</div>
+	</section>
+</Reveal>
 
-<section class="bg-cream py-14 lg:py-16">
+<Reveal>
+	<section class="bg-cream py-16 lg:py-24">
 	<div class="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_1.4fr] lg:px-8">
 		<div>
 			<h2 class="font-display text-3xl font-black">Good to Know</h2>
@@ -154,17 +174,15 @@
 							bind:value={date}
 							min={today}
 							required
-							class="h-12 w-full rounded-xl border border-ink/15 px-4 text-[15px] outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
+							aria-invalid={invalidField === 'date' ? true : undefined}
+							class="field h-12 {invalidField === 'date' ? 'field-error' : ''}"
 						/>
 					</label>
 					<label class="block">
 						<span class="mb-1.5 flex items-center gap-1.5 text-sm font-semibold">
 							<Clock class="h-4 w-4 text-brand" /> Time
 						</span>
-						<select
-							bind:value={time}
-							class="h-12 w-full rounded-xl border border-ink/15 bg-white px-4 text-[15px] outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
-						>
+						<select bind:value={time} class="field h-12">
 							<option value="11:00">11:00 AM</option>
 							<option value="12:00">12:00 PM</option>
 							<option value="13:00">1:00 PM</option>
@@ -185,7 +203,8 @@
 							min="1"
 							max="20"
 							required
-							class="h-12 w-full rounded-xl border border-ink/15 px-4 text-[15px] outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
+							aria-invalid={invalidField === 'guests' ? true : undefined}
+							class="field h-12 {invalidField === 'guests' ? 'field-error' : ''}"
 						/>
 					</label>
 					<label class="block">
@@ -196,7 +215,8 @@
 							placeholder="e.g. Alex Morgan"
 							autocomplete="name"
 							required
-							class="h-12 w-full rounded-xl border border-ink/15 px-4 text-[15px] outline-none placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand/30"
+							aria-invalid={invalidField === 'name' ? true : undefined}
+							class="field h-12 {invalidField === 'name' ? 'field-error' : ''}"
 						/>
 					</label>
 					<label class="block sm:col-span-2">
@@ -209,7 +229,8 @@
 							placeholder="+1 234 567 8900"
 							autocomplete="tel"
 							required
-							class="h-12 w-full rounded-xl border border-ink/15 px-4 text-[15px] outline-none placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand/30"
+							aria-invalid={invalidField === 'phone' ? true : undefined}
+							class="field h-12 {invalidField === 'phone' ? 'field-error' : ''}"
 						/>
 					</label>
 					<label class="block sm:col-span-2">
@@ -218,18 +239,21 @@
 							bind:value={notes}
 							rows="3"
 							placeholder="Birthday, window seat, allergies…"
-							class="w-full resize-none rounded-xl border border-ink/15 px-4 py-3 text-[15px] outline-none placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand/30"
+							class="field resize-none py-3"
 						></textarea>
 					</label>
 				</div>
-				<button
-					type="submit"
-					class="mt-6 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-brand font-semibold text-white transition-colors hover:bg-brand-dark"
-				>
-					<CalendarDays class="h-5 w-5" />
-					Confirm Reservation
-				</button>
+				<div class="mt-6">
+					<SubmitButton
+						loading={submitting}
+						label="Confirm Reservation"
+						loadingLabel="Reserving your table…"
+					>
+						<CalendarDays class="h-5 w-5" />
+					</SubmitButton>
+				</div>
 			</form>
 		{/if}
 	</div>
 </section>
+</Reveal>

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { ArrowLeft, ArrowRight, CalendarDays, User } from '@lucide/svelte';
+	import Reveal from '#lib/components/Reveal.svelte';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -16,7 +17,8 @@
 	<meta property="og:type" content="article" />
 </svelte:head>
 
-<article class="bg-cream py-14 lg:py-16">
+<Reveal>
+	<article class="bg-cream py-16 lg:py-24">
 	<div class="mx-auto max-w-3xl px-4 sm:px-6">
 		<a
 			href="/blog/"
@@ -86,3 +88,4 @@
 		</div>
 	{/if}
 </article>
+</Reveal>

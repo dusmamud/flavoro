@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { ArrowRight, CalendarDays, User } from '@lucide/svelte';
 	import { blogPosts } from '#lib/api';
+	import Reveal from '#lib/components/Reveal.svelte';
 </script>
 
 <svelte:head>
@@ -13,6 +14,7 @@
 	<meta property="og:image" content="/images/blog-1.jpg" />
 </svelte:head>
 
+<Reveal>
 <section class="bg-night py-16 text-center text-white lg:py-20">
 	<p class="font-script text-3xl text-brand">From Our Kitchen</p>
 	<h1 class="mt-2 font-display text-4xl font-black sm:text-5xl">Our Blog</h1>
@@ -20,8 +22,10 @@
 		Recipes, tips and stories from the people who cook your food.
 	</p>
 </section>
+</Reveal>
 
-<section class="bg-cream py-14 lg:py-16">
+<Reveal>
+<section class="bg-cream py-16 lg:py-24">
 	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 		<div class="grid gap-6 sm:grid-cols-2">
 			{#each blogPosts as post (post.slug)}
@@ -68,3 +72,4 @@
 		</div>
 	</div>
 </section>
+</Reveal>

@@ -26,6 +26,34 @@
 		background: #f5820b;
 		color: #fff;
 	}
+	/* Visible keyboard focus everywhere. Form fields keep their own
+	   focus ring (below) so they don't get a second outline. */
+	:focus-visible {
+		outline: 2px solid #f5820b;
+		outline-offset: 2px;
+	}
+	input:focus-visible,
+	textarea:focus-visible,
+	select:focus-visible {
+		outline: none;
+	}
+}
+
+/* Shared form-field look: one border/focus/placeholder treatment for
+   every form on the site (order, reservations, catering, private
+   dining, gift cards, contact, newsletter). Height/padding stay in
+   the markup (h-12 for inputs, py-3 for textareas). */
+@layer components {
+	.field {
+		@apply w-full rounded-xl border border-ink/15 bg-white px-4 text-[15px] outline-none placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand/30;
+	}
+	.field-error {
+		@apply border-red-400 focus:border-red-500 focus:ring-red-200;
+	}
+	/* One primary orange pill, used by every submit button. */
+	.btn-primary {
+		@apply flex h-12 w-full items-center justify-center gap-2 rounded-full bg-brand font-semibold text-white transition-all hover:bg-brand-dark active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:bg-brand;
+	}
 }
 
 /* Torn-paper white edge used at the bottom of the dark hero */
@@ -45,10 +73,12 @@
 	@keyframes floaty {
 		0%,
 		100% {
-			transform: translateY(0) rotate(0deg);
+			/* --leaf-drift is set by the hero parallax (desktop only);
+			   everywhere else it falls back to 0. */
+			transform: translateY(var(--leaf-drift, 0px)) rotate(0deg);
 		}
 		50% {
-			transform: translateY(-12px) rotate(6deg);
+			transform: translateY(calc(var(--leaf-drift, 0px) - 12px)) rotate(6deg);
 		}
 	}
 	.animate-floaty {
@@ -66,5 +96,116 @@
 	}
 	.animate-fade-up {
 		animation: fade-up 0.5s ease both;
+	}
+	@keyframes badge-pop {
+		0% {
+			transform: scale(1);
+		}
+		40% {
+			transform: scale(1.45);
+		}
+		100% {
+			transform: scale(1);
+		}
+	}
+	.animate-badge-pop {
+		animation: badge-pop 0.35s ease;
+	}
+	@keyframes page-in {
+		from {
+			opacity: 0;
+			transform: translateY(8px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+	.page-enter {
+		animation: page-in 0.28s ease both;
+	}
+	/* Hero entrance: staggered via inline animation-delay. Opacity 0
+	   lives inside this block only, so reduced-motion / no-animation
+	   browsers always see the content. */
+	@keyframes hero-in {
+		from {
+			opacity: 0;
+			transform: translateY(18px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+	.hero-anim {
+		opacity: 0;
+		animation: hero-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+	}
+	/* Scroll-reveal: the hidden state only applies when JS is present
+	   (.js on <html>, added by the inline script in +layout.svelte).
+	   No-JS users never get the hidden class, so content is visible. */
+	.js .reveal {
+		opacity: 0;
+		transform: translateY(22px);
+		transition:
+			opacity 0.6s ease,
+			transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+	}
+	.js .reveal.reveal-visible {
+		opacity: 1;
+		transform: translateY(0);
+	}
+	/* Dish description: on hover-capable desktops only, the description
+	   hides until the card is hovered/focused, sliding up over the photo
+	   (transform + opacity only). Touch devices and narrow screens keep
+	   the in-flow description always visible. */
+	.dish-desc-overlay {
+		display: none;
+	}
+	@media (hover: hover) and (min-width: 1024px) {
+		.dish-desc-flow {
+			display: none;
+		}
+		.dish-desc-overlay {
+			display: block;
+			opacity: 0;
+			transform: translateY(8px);
+			transition:
+				opacity 0.3s ease,
+				transform 0.3s ease;
+		}
+		.group:hover .dish-desc-overlay,
+		.group:focus-within .dish-desc-overlay {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	/* All motion off: no smooth scrolling, no entrance/reveal/float,
+	   no transitions. Content is always fully visible. */
+	html {
+		scroll-behavior: auto;
+	}
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
+	.reveal,
+	.hero-anim,
+	.dish-desc-overlay {
+		opacity: 1 !important;
+		transform: none !important;
+	}
+	/* Reduced motion + hover desktop: description never hides. */
+	.dish-desc-flow {
+		display: block !important;
+	}
+	.dish-desc-overlay {
+		display: none !important;
 	}
 }

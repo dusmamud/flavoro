@@ -14,9 +14,51 @@
 	} from '@lucide/svelte';
 	import DishCard from '#lib/components/DishCard.svelte';
 	import LeafDeco from '#lib/components/Leaf.svelte';
+	import Newsletter from '#lib/components/Newsletter.svelte';
+	import Reveal from '#lib/components/Reveal.svelte';
+	import TestimonialCard from '#lib/components/TestimonialCard.svelte';
 	import { popularDishes } from '#lib/api';
+	import { homeTestimonials } from '#lib/testimonials';
 
 	let carousel: HTMLDivElement | undefined = $state();
+	let heroEl: HTMLElement | undefined = $state();
+
+	// Hero parallax (desktop only, ≥1024px, motion allowed): the
+	// background photo drifts down slowly on scroll and the leaves drift
+	// up slightly — transform/CSS-var only, no layout shift. Buttons,
+	// text and headline never move.
+	$effect(() => {
+		const node = heroEl;
+		if (!node) return;
+		const mq = window.matchMedia(
+			'(min-width: 1024px) and (prefers-reduced-motion: no-preference)'
+		);
+		let raf = 0;
+		const apply = () => {
+			raf = 0;
+			if (!mq.matches) {
+				node.style.removeProperty('--hero-shift');
+				node.style.removeProperty('--leaf-drift');
+				return;
+			}
+			const y = Math.min(window.scrollY * 0.12, 80);
+			node.style.setProperty('--hero-shift', `${y.toFixed(1)}px`);
+			node.style.setProperty('--leaf-drift', `${(-y * 0.5).toFixed(1)}px`);
+		};
+		const onScroll = () => {
+			if (!raf) raf = requestAnimationFrame(apply);
+		};
+		apply();
+		window.addEventListener('scroll', onScroll, { passive: true });
+		window.addEventListener('resize', onScroll);
+		mq.addEventListener('change', apply);
+		return () => {
+			window.removeEventListener('scroll', onScroll);
+			window.removeEventListener('resize', onScroll);
+			mq.removeEventListener('change', apply);
+			if (raf) cancelAnimationFrame(raf);
+		};
+	});
 
 	function scrollCarousel(dir: 1 | -1) {
 		if (!carousel) return;
@@ -69,7 +111,7 @@
      dark bokeh left, plate right — same photo across the full width.
      The section is pulled up 76px under the transparent header so
      header + hero read as one continuous photo. -->
-<section class="hero-bg relative -mt-[76px] overflow-hidden bg-night text-white">
+<section bind:this={heroEl} class="hero-bg relative -mt-[76px] overflow-hidden bg-night text-white">
 	<!-- #4: light overlay only — bokeh stays visible across the whole hero -->
 	<div
 		class="pointer-events-none absolute inset-0 bg-gradient-to-r from-night/55 via-night/35 to-night/15"
@@ -77,42 +119,55 @@
 	></div>
 
 	<!-- #10: floating leaves over the plate area of the photo (lg only, so
-	     they never sit on text); one small leaf stays visible on mobile at
-	     the bottom-right corner, clear of the USP rows -->
+	     they never sit on text); photographic basil cutouts (Leaf.svelte),
+	     three sprig variants rotated/sized per instance -->
 	<LeafDeco
+		variant={1}
 		class="animate-floaty pointer-events-none absolute top-32 right-60 z-10 hidden h-24 w-24 rotate-12 opacity-90 lg:block"
 	/>
 	<LeafDeco
+		variant={2}
 		class="animate-floaty pointer-events-none absolute bottom-28 left-4 z-10 hidden h-20 w-20 -rotate-45 opacity-80 [animation-delay:1.6s] lg:block"
 	/>
 	<LeafDeco
+		variant={3}
 		class="animate-floaty pointer-events-none absolute top-[46%] right-[4%] z-10 hidden h-16 w-16 -rotate-12 opacity-90 lg:block"
 	/>
 	<LeafDeco
+		variant={1}
 		class="animate-floaty pointer-events-none absolute right-[38%] bottom-[26%] z-10 hidden h-14 w-14 rotate-45 opacity-80 [animation-delay:1.2s] lg:block"
 	/>
 	<LeafDeco
+		variant={2}
 		class="animate-floaty pointer-events-none absolute top-[58%] right-[46%] z-10 hidden h-12 w-12 rotate-12 opacity-70 [animation-delay:2.1s] lg:block"
 	/>
 	<LeafDeco
+		variant={3}
 		class="animate-floaty pointer-events-none absolute right-[10%] bottom-[18%] z-10 hidden h-12 w-12 -rotate-45 opacity-80 [animation-delay:0.8s] lg:block"
 	/>
 
 	<!-- Best Food In Town badge — absolute over the plate area. Top-right
 	     from sm up; bottom-right below sm, where the headline spans the
-	     full width and a top-right badge would sit on the text. -->
+	     full width and a top-right badge would sit on the text.
+	     160px at lg (was 128px) — the reference badge is ~170px at 1440. -->
 	<div
-		class="absolute right-4 bottom-16 z-10 flex h-28 w-28 flex-col items-center justify-center rounded-full border-2 border-dashed border-brand/70 bg-night/80 text-center shadow-xl backdrop-blur sm:top-28 sm:right-6 sm:bottom-auto lg:right-16 lg:h-32 lg:w-32"
+		class="hero-anim absolute right-4 bottom-16 z-10 flex h-28 w-28 flex-col items-center justify-center rounded-full border-2 border-dashed border-brand/70 bg-night/80 text-center shadow-xl backdrop-blur sm:top-28 sm:right-6 sm:bottom-auto lg:right-16 lg:h-40 lg:w-40"
+		style="animation-delay: 480ms"
 	>
-		<ChefHat class="h-6 w-6 text-brand" />
-		<span class="mt-1 font-script text-lg leading-none text-brand">Best Food</span>
-		<span class="text-[11px] font-semibold tracking-widest text-white uppercase">In Town</span>
+		<ChefHat class="h-6 w-6 text-brand lg:h-8 lg:w-8" />
+		<span class="mt-1 font-script text-lg leading-none text-brand lg:text-2xl">Best Food</span>
+		<span class="text-[11px] font-semibold tracking-widest text-white uppercase lg:text-xs">In Town</span>
 	</div>
 
-	<div class="relative mx-auto grid max-w-7xl gap-10 px-4 pt-[124px] pb-24 sm:px-6 lg:grid-cols-2 lg:items-center lg:px-8 lg:pt-[140px] lg:pb-32">
+	<div class="relative mx-auto grid max-w-7xl gap-10 px-4 pt-[124px] pb-24 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:px-8 lg:pt-[104px] lg:pb-[72px]">
 		<div class="relative z-10">
-			<p class="font-script text-3xl text-brand sm:text-4xl">Good Food, Good Mood</p>
-			<h1 class="mt-3 font-display text-5xl leading-[1.05] font-black sm:text-6xl lg:text-7xl">
+			<p class="hero-anim font-script text-3xl text-brand sm:text-4xl" style="animation-delay: 60ms">
+				Good Food, Good Mood
+			</p>
+			<h1
+				class="hero-anim mt-3 font-display text-5xl leading-[1.05] font-black sm:text-6xl lg:text-7xl"
+				style="animation-delay: 140ms"
+			>
 				Delicious Food
 				<span class="mt-1 block font-script text-5xl font-normal text-brand sm:text-6xl lg:text-7xl">
 					Made with Love
@@ -120,27 +175,32 @@
 					<Heart class="mb-2 inline h-5 w-5 fill-brand text-brand" />
 				</span>
 			</h1>
-			<p class="mt-6 max-w-md text-base leading-relaxed text-white/75 sm:text-lg">
+			<p
+				class="hero-anim mt-5 max-w-md text-base leading-relaxed text-white/75 sm:text-lg"
+				style="animation-delay: 220ms"
+			>
 				Experience the perfect blend of taste, quality and happiness in every bite.
 			</p>
-			<div class="mt-8 flex flex-wrap gap-4">
+			<div class="hero-anim mt-6 flex flex-wrap gap-4" style="animation-delay: 300ms">
 				<a
 					href="/menu/"
-					class="flex h-12 items-center gap-2 rounded-full bg-brand px-7 text-[15px] font-semibold text-white transition-colors hover:bg-brand-dark"
+					class="flex h-12 items-center gap-2 rounded-full bg-brand px-7 text-[15px] font-semibold text-white transition-all hover:bg-brand-dark active:scale-[0.98]"
 				>
 					<UtensilsCrossed class="h-5 w-5" />
 					Explore Menu
 				</a>
 				<a
 					href="/reservations/"
-					class="flex h-12 items-center gap-2 rounded-full border border-white/60 px-7 text-[15px] font-semibold text-white transition-colors hover:border-white hover:bg-white/10"
+					class="flex h-12 items-center gap-2 rounded-full border border-white/60 px-7 text-[15px] font-semibold text-white transition-all hover:border-white hover:bg-white/10 active:scale-[0.98]"
 				>
 					<CalendarDays class="h-5 w-5" />
 					Book a Table
 				</a>
 			</div>
 
-			<ul class="mt-12 grid max-w-lg grid-cols-1 gap-5 sm:grid-cols-3">
+			<!-- USP row: wider grid column (1.1fr) + max-w-2xl so "100% Fresh &
+			     Healthy" fits on ONE line at 1440 (was wrapping at 2 lines). -->
+			<ul class="hero-anim mt-8 grid max-w-2xl grid-cols-1 gap-5 sm:grid-cols-3" style="animation-delay: 380ms">
 				<li class="flex items-center gap-3">
 					<span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-brand/60 text-brand">
 						<UtensilsCrossed class="h-5 w-5" />
@@ -192,7 +252,8 @@
 </section>
 
 <!-- ============ ABOUT ============ -->
-<section class="relative overflow-hidden bg-cream py-16 lg:py-20">
+<Reveal>
+	<section class="relative overflow-hidden bg-cream py-16 lg:py-24">
 	<!-- #15: black torn strip at the top-left corner -->
 	<svg
 		class="absolute top-0 left-0 z-10 block h-8 w-44 text-night sm:w-56"
@@ -207,8 +268,8 @@
 	</svg>
 
 	<!-- #13: decorative green leaves at the About section's right edge -->
-	<LeafDeco class="pointer-events-none absolute top-24 -right-3 h-14 w-14 rotate-45 opacity-90" />
-	<LeafDeco class="pointer-events-none absolute right-6 bottom-24 h-10 w-10 -rotate-12 opacity-80" />
+	<LeafDeco variant={1} class="pointer-events-none absolute top-24 -right-3 h-14 w-14 rotate-45 opacity-90" />
+	<LeafDeco variant={2} class="pointer-events-none absolute right-6 bottom-24 h-10 w-10 -rotate-12 opacity-80" />
 
 	<div class="relative mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[1fr_1.1fr_1fr] lg:items-center lg:gap-8 lg:px-8">
 		<div>
@@ -228,7 +289,7 @@
 			<p class="mt-6 font-script text-3xl text-ink">Flavoro Restaurant</p>
 			<a
 				href="/about/"
-				class="mt-6 inline-flex h-12 items-center gap-2 rounded-full bg-brand px-7 text-[15px] font-semibold text-white transition-colors hover:bg-brand-dark"
+				class="mt-6 inline-flex h-12 items-center gap-2 rounded-full bg-brand px-7 text-[15px] font-semibold text-white transition-all hover:bg-brand-dark active:scale-[0.98]"
 			>
 				Learn More About Us
 				<ArrowRight class="h-5 w-5" />
@@ -279,9 +340,11 @@
 		</div>
 	</div>
 </section>
+</Reveal>
 
 <!-- ============ POPULAR DISHES ============ -->
-<section class="bg-cream py-14 lg:py-20">
+<Reveal>
+<section class="bg-cream py-16 lg:py-24">
 	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 		<div class="text-center">
 			<p class="font-script text-3xl text-brand">Our Menu</p>
@@ -297,10 +360,13 @@
 				bind:this={carousel}
 				class="flex snap-x snap-mandatory gap-6 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden xl:grid xl:grid-cols-4 xl:overflow-visible xl:pb-0"
 			>
-				{#each popularDishes as dish (dish.id)}
-					<div class="w-[280px] shrink-0 snap-start sm:w-[320px] xl:w-auto">
+				{#each popularDishes as dish, i (dish.id)}
+					<Reveal
+						class="w-[280px] shrink-0 snap-start sm:w-[320px] xl:w-auto"
+						delay={Math.min(i * 80, 320)}
+					>
 						<DishCard {dish} />
-					</div>
+					</Reveal>
 				{/each}
 			</div>
 			<button
@@ -324,8 +390,34 @@
 		<!-- #17: "View Full Menu →" button block REMOVED entirely -->
 	</div>
 </section>
+</Reveal>
+
+<!-- ============ TESTIMONIALS ============ -->
+<!-- SAMPLE — replace with real customer reviews before launch
+     (see src/lib/testimonials.ts; every quote carries sample: true). -->
+<Reveal>
+<section class="bg-cream-deep py-16 lg:py-24">
+	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+		<div class="text-center">
+			<p class="font-script text-3xl text-brand">Kind Words</p>
+			<h2 class="mt-1 font-display text-4xl font-black sm:text-5xl">What Our Guests Say</h2>
+			<p class="mx-auto mt-3 max-w-xl text-sm text-muted">
+				Sample quotes shown while we collect real guest reviews.
+			</p>
+		</div>
+		<div class="mt-10 grid gap-6 md:grid-cols-3">
+			{#each homeTestimonials as testimonial, i (testimonial.name)}
+				<Reveal class="h-full" delay={Math.min(i * 90, 270)}>
+					<TestimonialCard {testimonial} />
+				</Reveal>
+			{/each}
+		</div>
+	</div>
+</section>
+</Reveal>
 
 <!-- ============ RESERVE BANNER ============ -->
+<Reveal>
 <section class="bg-cream px-4 pb-16 sm:px-6 lg:px-8 lg:pb-20">
 	<div class="relative mx-auto max-w-7xl overflow-hidden rounded-3xl">
 		<img
@@ -357,7 +449,7 @@
 			</div>
 			<a
 				href="/reservations/"
-				class="flex h-12 shrink-0 items-center gap-2 rounded-full bg-brand px-7 text-[15px] font-semibold text-white transition-colors hover:bg-brand-dark"
+				class="flex h-12 shrink-0 items-center gap-2 rounded-full bg-brand px-7 text-[15px] font-semibold text-white transition-all hover:bg-brand-dark active:scale-[0.98]"
 			>
 				<CalendarDays class="h-5 w-5" />
 				Book a Table
@@ -365,11 +457,33 @@
 		</div>
 	</div>
 </section>
+</Reveal>
+
+<!-- ============ NEWSLETTER ============ -->
+<Reveal>
+	<section class="bg-cream py-14 lg:py-16">
+		<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+			<div class="mx-auto max-w-2xl text-center">
+				<h2 class="font-display text-3xl font-black sm:text-4xl">Tasty News, Once a Month</h2>
+				<p class="mt-2 text-muted">
+					New dishes, seasonal specials and members-only offers — straight to your inbox.
+				</p>
+				<div class="mt-6">
+					<Newsletter tone="light" />
+				</div>
+			</div>
+		</div>
+	</section>
+</Reveal>
 
 <style>
 	/* Hero: ONE continuous photograph (dark bokeh left, plate right).
 	   Mobile keeps the plate in frame (~70% anchor); desktop anchors it
-	   to the right edge. No <img> — a pasted image can never align. */
+	   to the right edge. No <img> — a pasted image can never align.
+	   Desktop vertical anchor is 30% (not center): the new plate photo
+	   is a tall 3:2 shot, and center-cropping would cut the chicken's
+	   top — 30% keeps the chicken whole and lets the plate bleed off
+	   the bottom edge, like the reference. */
 	.hero-bg {
 		background-image: url('/images/hero.jpg');
 		background-size: cover;
@@ -377,7 +491,9 @@
 	}
 	@media (min-width: 1024px) {
 		.hero-bg {
-			background-position: right center;
+			/* --hero-shift is set by the parallax effect (desktop only);
+			   it drifts the photo down slowly on scroll. */
+			background-position: right calc(30% + var(--hero-shift, 0px));
 		}
 	}
 </style>

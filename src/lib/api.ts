@@ -13,6 +13,22 @@ export type DishCategory =
 	| 'Desserts'
 	| 'Drinks';
 
+export type DietaryTag = 'veg' | 'vegan' | 'gf';
+export type AllergenTag = 'nuts' | 'dairy' | 'gluten' | 'spicy';
+
+export const dietaryLabels: Record<DietaryTag, string> = {
+	veg: 'Veg',
+	vegan: 'Vegan',
+	gf: 'Gluten-Free'
+};
+
+export const allergenLabels: Record<AllergenTag, string> = {
+	nuts: 'nuts',
+	dairy: 'dairy',
+	gluten: 'gluten',
+	spicy: 'spicy'
+};
+
 export interface Dish {
 	id: string;
 	name: string;
@@ -21,6 +37,9 @@ export interface Dish {
 	image: string;
 	category: DishCategory;
 	badge?: string;
+	/** Only tags that are true for the dish, from its name/description. */
+	dietary: DietaryTag[];
+	allergens: AllergenTag[];
 }
 
 export const popularDishes: Dish[] = [
@@ -31,7 +50,9 @@ export const popularDishes: Dish[] = [
 		price: 12.99,
 		image: '/images/dish-pasta.jpg',
 		category: 'Pasta',
-		badge: 'Best Seller'
+		badge: 'Best Seller',
+		dietary: ['veg'],
+		allergens: ['dairy', 'gluten']
 	},
 	{
 		id: 'grilled-chicken',
@@ -39,7 +60,9 @@ export const popularDishes: Dish[] = [
 		description: 'Served with veggies & sauce',
 		price: 15.99,
 		image: '/images/dish-chicken.jpg',
-		category: 'Main Course'
+		category: 'Main Course',
+		dietary: [],
+		allergens: []
 	},
 	{
 		id: 'margherita-pizza',
@@ -47,7 +70,9 @@ export const popularDishes: Dish[] = [
 		description: 'Classic cheese pizza',
 		price: 11.99,
 		image: '/images/dish-pizza.jpg',
-		category: 'Pizza'
+		category: 'Pizza',
+		dietary: ['veg'],
+		allergens: ['dairy', 'gluten']
 	},
 	{
 		id: 'lava-cake',
@@ -55,7 +80,9 @@ export const popularDishes: Dish[] = [
 		description: 'Warm chocolate with ice cream',
 		price: 7.99,
 		image: '/images/dish-lava.jpg',
-		category: 'Desserts'
+		category: 'Desserts',
+		dietary: ['veg'],
+		allergens: ['dairy', 'gluten']
 	}
 ];
 
@@ -67,7 +94,9 @@ export const menuDishes: Dish[] = [
 		description: 'Grilled bread, tomato, basil & garlic',
 		price: 6.99,
 		image: '/images/dish-bruschetta.jpg',
-		category: 'Starters'
+		category: 'Starters',
+		dietary: ['veg', 'vegan'],
+		allergens: ['gluten']
 	},
 	{
 		id: 'garden-salad',
@@ -75,7 +104,9 @@ export const menuDishes: Dish[] = [
 		description: 'Mixed greens, cherry tomato & citrus dressing',
 		price: 8.49,
 		image: '/images/dish-salad.jpg',
-		category: 'Starters'
+		category: 'Starters',
+		dietary: ['veg', 'vegan', 'gf'],
+		allergens: []
 	},
 	{
 		id: 'tomato-soup',
@@ -83,7 +114,9 @@ export const menuDishes: Dish[] = [
 		description: 'Slow-roasted tomato with basil cream',
 		price: 6.49,
 		image: '/images/dish-soup.jpg',
-		category: 'Starters'
+		category: 'Starters',
+		dietary: ['veg', 'gf'],
+		allergens: ['dairy']
 	},
 	{
 		id: 'grilled-salmon',
@@ -91,7 +124,9 @@ export const menuDishes: Dish[] = [
 		description: 'Lemon butter salmon with herb rice',
 		price: 18.99,
 		image: '/images/dish-salmon.jpg',
-		category: 'Main Course'
+		category: 'Main Course',
+		dietary: [],
+		allergens: ['dairy']
 	},
 	{
 		id: 'flavoro-burger',
@@ -99,7 +134,9 @@ export const menuDishes: Dish[] = [
 		description: 'Double patty, cheddar & house sauce',
 		price: 10.99,
 		image: '/images/dish-burger.jpg',
-		category: 'Main Course'
+		category: 'Main Course',
+		dietary: [],
+		allergens: ['dairy', 'gluten']
 	},
 	{
 		id: 'pasta-arrabbiata',
@@ -107,7 +144,9 @@ export const menuDishes: Dish[] = [
 		description: 'Spicy tomato sauce with parmesan',
 		price: 11.49,
 		image: '/images/dish-pasta2.jpg',
-		category: 'Pasta'
+		category: 'Pasta',
+		dietary: ['veg'],
+		allergens: ['dairy', 'gluten', 'spicy']
 	},
 	{
 		id: 'tiramisu',
@@ -115,7 +154,9 @@ export const menuDishes: Dish[] = [
 		description: 'Coffee-soaked ladyfingers & mascarpone',
 		price: 6.99,
 		image: '/images/dish-tiramisu.jpg',
-		category: 'Desserts'
+		category: 'Desserts',
+		dietary: ['veg'],
+		allergens: ['dairy', 'gluten']
 	},
 	{
 		id: 'fresh-lemonade',
@@ -123,7 +164,9 @@ export const menuDishes: Dish[] = [
 		description: 'Hand-pressed lemon with fresh mint',
 		price: 4.99,
 		image: '/images/dish-lemonade.jpg',
-		category: 'Drinks'
+		category: 'Drinks',
+		dietary: ['veg', 'vegan', 'gf'],
+		allergens: []
 	}
 ];
 

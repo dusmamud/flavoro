@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { ChevronRight, Heart, Mail, MapPin, Phone, UtensilsCrossed } from '@lucide/svelte';
+	import Newsletter from '#lib/components/Newsletter.svelte';
+	import OpenStatus from '#lib/components/OpenStatus.svelte';
 	import { restaurantInfo } from '#lib/api';
 
 	const quickLinks = [
@@ -8,7 +10,11 @@
 		{ href: '/menu/', label: 'Menu' },
 		{ href: '/gallery/', label: 'Gallery' },
 		{ href: '/reservations/', label: 'Reservations' },
-		{ href: '/contact/', label: 'Contact' }
+		{ href: '/contact/', label: 'Contact' },
+		{ href: '/catering/', label: 'Catering' },
+		{ href: '/private-dining/', label: 'Private Dining' },
+		{ href: '/gift-cards/', label: 'Gift Cards' },
+		{ href: '/faq/', label: 'FAQ' }
 	];
 </script>
 
@@ -19,6 +25,21 @@
 		class="pointer-events-none absolute inset-0 bg-gradient-to-r from-night/55 via-night/20 to-transparent"
 		aria-hidden="true"
 	></div>
+	<!-- Newsletter strip — sits inside the footer so it shares the same
+	     background photo; the 4-column grid below is untouched. -->
+	<div class="relative z-10 mx-auto max-w-7xl px-4 pt-12 sm:px-6 lg:px-8">
+		<div class="flex flex-col items-start gap-4 lg:flex-row lg:items-center lg:justify-between">
+			<div>
+				<h3 class="font-display text-2xl font-bold">Tasty News, Once a Month</h3>
+				<p class="mt-1 text-[15px] text-white/70">
+					New dishes, seasonal specials and members-only offers — straight to your inbox.
+				</p>
+			</div>
+			<div class="w-full max-w-md">
+				<Newsletter />
+			</div>
+		</div>
+	</div>
 	<div
 		class="relative z-10 mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8"
 	>
@@ -119,6 +140,9 @@
 				<li>Monday – Friday<br />11:00 AM – 10:00 PM</li>
 				<li>Saturday – Sunday<br />10:00 AM – 11:00 PM</li>
 			</ul>
+			<div class="mt-4">
+				<OpenStatus />
+			</div>
 			<p class="mt-4 font-script text-2xl text-brand">We are Open Everyday!</p>
 		</div>
 
@@ -145,8 +169,9 @@
 	</div>
 
 	<!-- Bottom bar sits on the SAME background photo (transparent, no
-	     solid band, no divider line) — part of the same dark footer. -->
-	<div class="relative z-10">
+	     solid band) — part of the same dark footer. The faint divider
+	     above it is back (dropped in §14). -->
+	<div class="relative z-10 border-t border-white/10">
 		<div
 			class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-5 text-sm text-white/60 sm:flex-row sm:px-6 lg:px-8"
 		>
@@ -170,9 +195,14 @@
 	   left, basil/tomato/spices right), continuing under the bottom bar.
 	   No <img> — a pasted image can never align. bg-night underneath is
 	   the fallback if /images/footer-bg.jpg is missing.
-	   Mobile/tablet: cover anchored 75% across — the food cluster stays
-	   on the right while dark wood sits under the stacked text, so every
-	   line stays readable.
+	   Mobile/tablet: cover anchored 65% across (was 75%) — with the new
+	   photo's cluster further right, 75% put the whole tomato behind
+	   the stacked Contact address at 768; 65% keeps only a tomato
+	   sliver at the far right edge and dark wood under the text, so
+	   every line stays readable.
+	   background-repeat: no-repeat — the photo must never tile: at
+	   1024 the rendered image is shorter than the footer, and the
+	   repeat showed a second tomato + bowl over the Contact heading.
 	   Desktop (>=1024px): the photo is 20% wider than the footer and
 	   bottom-anchored, which pushes the food cluster right of the Contact
 	   column — the text sits on plain dark wood, the tomato/basil/spice
@@ -181,12 +211,14 @@
 	.footer-bg {
 		background-image: url('/images/footer-bg.jpg');
 		background-size: cover;
-		background-position: 75% center;
+		background-position: 65% center;
+		background-repeat: no-repeat;
 	}
 	@media (min-width: 1024px) {
 		.footer-bg {
 			background-size: 120% auto;
 			background-position: left bottom;
+			background-repeat: no-repeat;
 		}
 	}
 </style>

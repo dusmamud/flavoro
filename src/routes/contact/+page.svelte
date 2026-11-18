@@ -1,5 +1,8 @@
 <script lang="ts">
 	import { CheckCircle2, Clock, Mail, MapPin, Phone, Send } from '@lucide/svelte';
+	import OpenStatus from '#lib/components/OpenStatus.svelte';
+	import Reveal from '#lib/components/Reveal.svelte';
+	import SubmitButton from '#lib/components/SubmitButton.svelte';
 	import { restaurantInfo } from '#lib/api';
 
 	let name = $state('');
@@ -7,24 +10,37 @@
 	let subject = $state('General Question');
 	let message = $state('');
 	let error = $state('');
+	let invalidField = $state('');
+	let submitting = $state(false);
 	let sent = $state(false);
 
 	function submit(e: SubmitEvent) {
 		e.preventDefault();
 		error = '';
+		invalidField = '';
 		if (!name.trim()) {
 			error = 'Please tell us your name.';
+			invalidField = 'name';
 			return;
 		}
 		if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
 			error = 'Please enter a valid email address.';
+			invalidField = 'email';
 			return;
 		}
 		if (message.trim().length < 10) {
 			error = 'Please write a message of at least 10 characters.';
+			invalidField = 'message';
 			return;
 		}
-		sent = true;
+		// Brief loading state (simulated send) so the button shows a
+		// spinner and cannot double-submit.
+		if (submitting) return;
+		submitting = true;
+		window.setTimeout(() => {
+			sent = true;
+			submitting = false;
+		}, 600);
 	}
 </script>
 
@@ -37,6 +53,7 @@
 	<meta property="og:title" content="Contact — Flavoro Restaurant" />
 </svelte:head>
 
+<Reveal>
 <section class="bg-night py-16 text-center text-white lg:py-20">
 	<p class="font-script text-3xl text-brand">Get in Touch</p>
 	<h1 class="mt-2 font-display text-4xl font-black sm:text-5xl">Contact Us</h1>
@@ -44,8 +61,10 @@
 		Questions, feedback or a big celebration — we would love to hear from you.
 	</p>
 </section>
+</Reveal>
 
-<section class="bg-cream py-14 lg:py-16">
+<Reveal>
+<section class="bg-cream py-16 lg:py-24">
 	<div class="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_1.3fr] lg:px-8">
 		<div class="space-y-4">
 			<div class="flex gap-4 rounded-2xl bg-white p-5 shadow-sm">
@@ -54,16 +73,24 @@
 				</span>
 				<div>
 					<h2 class="font-display text-lg font-bold">Visit Us</h2>
+					<!-- NOTE: the address below is a placeholder — replace with
+					     the real address when it is confirmed. -->
 					<p class="mt-1 text-sm leading-relaxed text-muted">
 						123 Food Street,<br />New York, USA 10001
 					</p>
+					<!-- Placeholder parking/access info — confirm the real
+					     details (nearest station, parking) before launch. -->
+					<p class="mt-2 text-sm leading-relaxed text-muted">
+						Street parking is available nearby, and the nearest subway station is a short
+						walk away. The entrance is step-free and wheelchair accessible.
+					</p>
 					<a
-						href="https://www.openstreetmap.org/search?query=123%20Food%20Street%20New%20York"
+						href="https://maps.google.com/?q=123+Food+Street+New+York"
 						target="_blank"
 						rel="noreferrer"
 						class="mt-2 inline-block text-sm font-semibold text-brand hover:underline"
 					>
-						Open map →
+						Open in Google Maps →
 					</a>
 				</div>
 			</div>
@@ -97,6 +124,15 @@
 					<h2 class="font-display text-lg font-bold">Opening Hours</h2>
 					<p class="mt-1 text-sm leading-relaxed text-muted">
 						{restaurantInfo.hoursWeekday}<br />{restaurantInfo.hoursWeekend}
+					</p>
+					<div class="mt-3 flex flex-col items-start gap-1.5">
+						<OpenStatus tone="light" showTodayHours />
+					</div>
+					<!-- Placeholder holiday-hours note — replace with the real
+					     holiday schedule when it is confirmed. -->
+					<p class="mt-3 text-sm leading-relaxed text-muted">
+						Holiday hours may differ — on public holidays we usually open at 12:00 PM and
+						close early. Call us to confirm before you visit.
 					</p>
 					<p class="mt-2 font-script text-2xl text-brand">We are Open Everyday!</p>
 				</div>
@@ -146,7 +182,9 @@
 							placeholder="e.g. Alex Morgan"
 							autocomplete="name"
 							required
-							class="h-12 w-full rounded-xl border border-ink/15 px-4 text-[15px] outline-none placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand/30"
+							aria-invalid={invalidField === 'name' ? true : undefined}
+
+							class="field h-12 {invalidField === 'name' ? 'field-error' : ''}"
 						/>
 					</label>
 					<label class="block">
@@ -157,14 +195,16 @@
 							placeholder="you@example.com"
 							autocomplete="email"
 							required
-							class="h-12 w-full rounded-xl border border-ink/15 px-4 text-[15px] outline-none placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand/30"
+							aria-invalid={invalidField === 'email' ? true : undefined}
+
+							class="field h-12 {invalidField === 'email' ? 'field-error' : ''}"
 						/>
 					</label>
 					<label class="block sm:col-span-2">
 						<span class="mb-1.5 block text-sm font-semibold">Subject</span>
 						<select
 							bind:value={subject}
-							class="h-12 w-full rounded-xl border border-ink/15 bg-white px-4 text-[15px] outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
+							class="field h-12"
 						>
 							<option>General Question</option>
 							<option>Reservation Help</option>
@@ -179,18 +219,19 @@
 							rows="5"
 							placeholder="Write your message here…"
 							required
-							class="w-full resize-none rounded-xl border border-ink/15 px-4 py-3 text-[15px] outline-none placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand/30"
+							aria-invalid={invalidField === 'message' ? true : undefined}
+
+							class="field resize-none py-3 {invalidField === 'message' ? 'field-error' : ''}"
 						></textarea>
 					</label>
 				</div>
-				<button
-					type="submit"
-					class="mt-6 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-brand font-semibold text-white transition-colors hover:bg-brand-dark"
-				>
-					<Send class="h-5 w-5" />
-					Send Message
-				</button>
+				<div class="mt-6">
+					<SubmitButton loading={submitting} label="Send Message" loadingLabel="Sending…">
+						<Send class="h-5 w-5" />
+					</SubmitButton>
+				</div>
 			</form>
 		{/if}
 	</div>
 </section>
+</Reveal>

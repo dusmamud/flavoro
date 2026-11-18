@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { Award, ChefHat, Heart, Leaf, Users } from '@lucide/svelte';
+	import TestimonialCard from '#lib/components/TestimonialCard.svelte';
 	import { chefs } from '#lib/api';
+	import { aboutTestimonials } from '#lib/testimonials';
+	import Reveal from '#lib/components/Reveal.svelte';
 
 	const stats = [
 		{ value: '10+', label: 'Years of Experience' },
@@ -20,6 +23,7 @@
 	<meta property="og:image" content="/images/interior.jpg" />
 </svelte:head>
 
+<Reveal>
 <section class="bg-night py-16 text-center text-white lg:py-20">
 	<p class="font-script text-3xl text-brand">Our Story</p>
 	<h1 class="mt-2 font-display text-4xl font-black sm:text-5xl">About Flavoro</h1>
@@ -27,8 +31,10 @@
 		A small kitchen with a big heart — serving New York since 2015.
 	</p>
 </section>
+</Reveal>
 
-<section class="bg-cream py-16 lg:py-20">
+<Reveal>
+<section class="bg-cream py-16 lg:py-24">
 	<div class="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
 		<img
 			src="/images/interior.jpg"
@@ -72,8 +78,10 @@
 		{/each}
 	</div>
 </section>
+</Reveal>
 
-<section class="bg-cream-deep py-16 lg:py-20">
+<Reveal>
+<section class="bg-cream-deep py-16 lg:py-24">
 	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 		<div class="text-center">
 			<p class="font-script text-3xl text-brand">Meet the Team</p>
@@ -100,3 +108,28 @@
 		</p>
 	</div>
 </section>
+</Reveal>
+
+<!-- ============ GUEST WORDS ============ -->
+<!-- SAMPLE — replace with real customer reviews before launch
+     (see src/lib/testimonials.ts; every quote carries sample: true). -->
+<Reveal>
+<section class="bg-cream py-16 lg:py-24">
+	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+		<div class="text-center">
+			<p class="font-script text-3xl text-brand">Kind Words</p>
+			<h2 class="mt-1 font-display text-4xl font-black">What Our Guests Say</h2>
+			<p class="mx-auto mt-3 max-w-xl text-sm text-muted">
+				Sample quotes shown while we collect real guest reviews.
+			</p>
+		</div>
+		<div class="mt-10 grid gap-6 md:grid-cols-3">
+			{#each aboutTestimonials as testimonial, i (testimonial.name)}
+				<Reveal class="h-full" delay={Math.min(i * 90, 270)}>
+					<TestimonialCard {testimonial} />
+				</Reveal>
+			{/each}
+		</div>
+	</div>
+</section>
+</Reveal>
